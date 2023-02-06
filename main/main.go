@@ -17,15 +17,16 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stevenwal/mock-indexer/contracts"
 )
 
 var (
-	cache                     = "cache.json"
-	key                       = os.Getenv("GANACHE_KEY")
-	l1Rpc                     = os.Getenv("GANACHE_L1_WSS_RPC")
-	l2Rpc                     = os.Getenv("GANACHE_L2_WSS_RPC")
+	cache                     = "addresses.json"
+	key                       = ""
+	l1Rpc                     = ""
+	l2Rpc                     = ""
 	accountsAddress           = common.Address{}
 	l1ERC20BridgeAddress      = common.Address{}
 	l1UsdcAddress             = common.Address{}
@@ -52,16 +53,13 @@ type ContractBackend interface {
 
 // Create an ETH RPC client
 func CreateClient(ctx context.Context, rpc string) ContractBackend {
-	// Timeout for connecting to the RPC
-	dCtx, cancel := context.WithTimeout(ctx, clientTimeout)
-	defer cancel()
-
-	client, err := ethclient.DialContext(dCtx, rpc)
-	if err != nil {
-		log.Fatal(err)
+	for {
+		if client, err := ethclient.DialContext(ctx, rpc); err != nil {
+			time.Sleep(clientTimeout)
+		} else {
+			return client
+		}
 	}
-
-	return client
 }
 
 // Create a subscription to the client to listen for on-chain events
@@ -97,6 +95,14 @@ func StartSubscription(
 }
 
 func init() {
+	if err := godotenv.Load("./.env"); err != nil {
+		log.Error("error loading .env file")
+	}
+
+	key = os.Getenv("GANACHE_KEY")
+	l1Rpc = os.Getenv("GANACHE_L1_WSS_RPC")
+	l2Rpc = os.Getenv("GANACHE_L2_WSS_RPC")
+
 	file, err := os.Open(cache)
 
 	if err != nil {
@@ -145,6 +151,8 @@ func main() {
 
 	go StartSubscription(ctx, l1Client, l1Filter, sink)
 	go StartSubscription(ctx, l2Client, l2Filter, sink)
+
+	log.Info("Indexing...")
 
 	for {
 		select {
