@@ -17,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stevenwal/mock-indexer/contracts"
 )
@@ -25,8 +24,8 @@ import (
 var (
 	cache                     = "addresses.json"
 	key                       = ""
-	l1Rpc                     = ""
-	l2Rpc                     = ""
+	l1Rpc                     = "ws://anvil-l1:8545"
+	l2Rpc                     = "ws://anvil-l2:8545"
 	accountsAddress           = common.Address{}
 	l1ERC20BridgeAddress      = common.Address{}
 	l1UsdcAddress             = common.Address{}
@@ -54,9 +53,11 @@ type ContractBackend interface {
 // Create an ETH RPC client
 func CreateClient(ctx context.Context, rpc string) ContractBackend {
 	for {
+		log.Info("Connecting to " + rpc + "...")
 		if client, err := ethclient.DialContext(ctx, rpc); err != nil {
 			time.Sleep(clientTimeout)
 		} else {
+			log.Info("Connected.")
 			return client
 		}
 	}
@@ -95,13 +96,7 @@ func StartSubscription(
 }
 
 func init() {
-	if err := godotenv.Load("./.env"); err != nil {
-		log.Error("error loading .env file")
-	}
-
-	key = os.Getenv("GANACHE_KEY")
-	l1Rpc = os.Getenv("GANACHE_L1_WSS_RPC")
-	l2Rpc = os.Getenv("GANACHE_L2_WSS_RPC")
+	key = os.Getenv("OWNER_KEY")
 
 	file, err := os.Open(cache)
 
