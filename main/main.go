@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/json"
+	"flag"
 	"io"
 	"math/big"
 	"os"
@@ -148,6 +149,13 @@ func init() {
 func main() {
 	ctx := context.Background()
 
+	var (
+		delay int64
+	)
+
+	flag.Int64Var(&delay, "delay", 0, "Delay duration in seconds")
+	flag.Parse()
+
 	sink := make(chan types.Log)
 
 	l1Client := CreateClient(ctx, l1Rpc)
@@ -196,6 +204,9 @@ func main() {
 						"to":      withdraw.To.Hex(),
 						"amount":  withdraw.Amount.String(),
 					}).Info("Withdrawal initiated.")
+
+					time.Sleep(time.Duration(delay) * time.Second)
+
 					tx, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.Account, withdraw.Amount, []byte{})
 					if err != nil {
 						log.Error(err)
@@ -225,6 +236,8 @@ func main() {
 						"amount":  deposit.Amount.String(),
 						"data":    common.BytesToHash(deposit.Data),
 					}).Info("Deposit initiated.")
+
+					time.Sleep(time.Duration(delay) * time.Second)
 
 					// Finalize deposit
 					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data)
