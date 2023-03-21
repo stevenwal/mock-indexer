@@ -171,7 +171,7 @@ func main() {
 						"to":      withdraw.To.Hex(),
 						"amount":  withdraw.Amount.String(),
 					}).Info("Withdrawal initiated.")
-					_, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.To, withdraw.Amount, []byte{})
+					_, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.Account, withdraw.Amount, []byte{})
 					if err != nil {
 						log.Error(err)
 					}
