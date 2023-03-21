@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"math/big"
 	"os"
@@ -155,6 +156,8 @@ func main() {
 
 	flag.Int64Var(&delay, "delay", 0, "Delay duration in seconds")
 	flag.Parse()
+
+	log.Info(fmt.Sprintf("Delay set at %d seconds", delay))
 
 	sink := make(chan types.Log)
 
