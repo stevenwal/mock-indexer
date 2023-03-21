@@ -23,8 +23,6 @@ import (
 	"github.com/stevenwal/mock-indexer/contracts"
 )
 
-var conn driver.Conn
-
 var (
 	cache                     = "addresses.json"
 	key                       = ""
@@ -64,6 +62,28 @@ func CreateClient(ctx context.Context, rpc string) ContractBackend {
 		} else {
 			log.Info("Connected.")
 			return client
+		}
+	}
+}
+
+func CreateDBConn(ctx context.Context) driver.Conn {
+	opt := &clickhouse.Options{
+		Addr: []string{"clickhouse:9000"},
+		Auth: clickhouse.Auth{
+			Database: "default",
+			Username: "",
+			Password: "",
+		},
+		DialTimeout: time.Minute,
+	}
+
+	for {
+		log.Info("Connecting to clickhouse...")
+		if conn, err := clickhouse.Open(opt); err != nil {
+			time.Sleep(clientTimeout)
+		} else {
+			log.Info("Connected.")
+			return conn
 		}
 	}
 }
@@ -123,21 +143,6 @@ func init() {
 	l2BridgeAddress = deployments.L2StandardBridge
 	l1UsdcAddress = deployments.USDC
 	l2UsdcAddress = deployments.L2USDC
-
-	opt := &clickhouse.Options{
-		Addr: []string{"clickhouse:9000"},
-		Auth: clickhouse.Auth{
-			Database: "default",
-			Username: "",
-			Password: "",
-		},
-		DialTimeout: time.Minute,
-	}
-
-	conn, err = clickhouse.Open(opt)
-	if err != nil {
-		log.Fatal()
-	}
 }
 
 func main() {
@@ -147,6 +152,7 @@ func main() {
 
 	l1Client := CreateClient(ctx, l1Rpc)
 	l2Client := CreateClient(ctx, l2Rpc)
+	conn := CreateDBConn(ctx)
 
 	l1ChainId, _ := l1Client.ChainID(ctx)
 	l2ChainId, _ := l2Client.ChainID(ctx)
