@@ -188,19 +188,19 @@ func main() {
 					// Mint the amount
 					_, err := l2Usdc.Mint(ownerl2.signer, ownerl2.address, deposit.Amount)
 					if err != nil {
-						log.Error(err)
+						log.WithField("err", err).Error("mint failed")
 					}
 
 					// Approve the amount
 					_, err = l2Usdc.Approve(ownerl2.signer, accountsAddress, deposit.Amount)
 					if err != nil {
-						log.Error(err)
+						log.WithField("err", err).Error("approve failed")
 					}
 
 					// Deposit
 					_, err = accounts.Deposit(ownerl2.signer, deposit.To, deposit.L2Token, deposit.Amount)
 					if err != nil {
-						log.Error(err)
+						log.WithField("err", err).Error("deposit failed")
 					}
 				default:
 					continue
