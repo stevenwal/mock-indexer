@@ -28,6 +28,7 @@ var (
 	l2Rpc                     = "ws://anvil-l2:8545"
 	accountsAddress           = common.Address{}
 	l1ERC20BridgeAddress      = common.Address{}
+	l2BridgeAddress           = common.Address{}
 	l1UsdcAddress             = common.Address{}
 	l2UsdcAddress             = common.Address{}
 	AccountsInterface, _      = abi.JSON(strings.NewReader(contracts.AccountsABI))
@@ -115,6 +116,7 @@ func init() {
 
 	accountsAddress = deployments.Account
 	l1ERC20BridgeAddress = deployments.L1StandardBridge
+	l2BridgeAddress = deployments.L2StandardBridge
 	l1UsdcAddress = deployments.USDC
 	l2UsdcAddress = deployments.L2USDC
 }
@@ -133,6 +135,8 @@ func main() {
 	ownerl1 := wallet(key, l1ChainId)
 	ownerl2 := wallet(key, l2ChainId)
 	l1Bridge, _ := contracts.NewIL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
+	l2Bridge, _ := contracts.NewMockL2ERC20Bridge(l2BridgeAddress, l2Client)
+
 	accounts, _ := contracts.NewAccounts(accountsAddress, l2Client)
 	l2Usdc, _ := contracts.NewTestERC20(l2UsdcAddress, l2Client)
 
@@ -183,10 +187,17 @@ func main() {
 						"account": deposit.From.Hex(),
 						"to":      deposit.To.Hex(),
 						"amount":  deposit.Amount.String(),
+						"data":    common.BytesToHash(deposit.Data),
 					}).Info("Deposit initiated.")
 
+					// Finalize deposit
+					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data)
+					if err != nil {
+						log.WithField("err", err).Error("finalize failed")
+					}
+
 					// Mint the amount
-					_, err := l2Usdc.Mint(ownerl2.signer, ownerl2.address, deposit.Amount)
+					_, err = l2Usdc.Mint(ownerl2.signer, ownerl2.address, deposit.Amount)
 					if err != nil {
 						log.WithField("err", err).Error("mint failed")
 					}
