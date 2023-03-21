@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -20,6 +22,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stevenwal/mock-indexer/contracts"
 )
+
+var conn driver.Conn
 
 var (
 	cache                     = "addresses.json"
@@ -119,6 +123,21 @@ func init() {
 	l2BridgeAddress = deployments.L2StandardBridge
 	l1UsdcAddress = deployments.USDC
 	l2UsdcAddress = deployments.L2USDC
+
+	opt := &clickhouse.Options{
+		Addr: []string{"clickhouse:9000"},
+		Auth: clickhouse.Auth{
+			Database: "default",
+			Username: "",
+			Password: "",
+		},
+		DialTimeout: time.Minute,
+	}
+
+	conn, err = clickhouse.Open(opt)
+	if err != nil {
+		log.Fatal()
+	}
 }
 
 func main() {
@@ -171,10 +190,21 @@ func main() {
 						"to":      withdraw.To.Hex(),
 						"amount":  withdraw.Amount.String(),
 					}).Info("Withdrawal initiated.")
-					_, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.Account, withdraw.Amount, []byte{})
+					tx, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.Account, withdraw.Amount, []byte{})
 					if err != nil {
 						log.Error(err)
 					}
+					err = conn.Exec(ctx,
+						"INSERT INTO processed_withdraw_history VALUES ($1, $2, $3, $4)",
+						event.TxHash.Hex(),
+						tx.Hash().Hex(),
+						int64(event.BlockNumber),
+						time.Now().Unix(),
+					)
+					if err != nil {
+						log.Error(err)
+					}
+
 				default:
 					continue
 				}
