@@ -36,7 +36,6 @@ var (
 	ERC20WithdrawalFinalized  = L1ERC20BridgeInterface.Events["ERC20WithdrawalFinalized"].ID
 	Deposit                   = AccountsInterface.Events["Deposit"].ID
 	Withdraw                  = AccountsInterface.Events["Withdraw"].ID
-	chainId                   = big.NewInt(31337)
 )
 
 // Timeout when connecting to the RPC
@@ -48,6 +47,7 @@ type ContractBackend interface {
 
 	// BlockNumber returns the most recent block number
 	BlockNumber(ctx context.Context) (uint64, error)
+	ChainID(ctx context.Context) (*big.Int, error)
 }
 
 // Create an ETH RPC client
@@ -127,7 +127,11 @@ func main() {
 	l1Client := CreateClient(ctx, l1Rpc)
 	l2Client := CreateClient(ctx, l2Rpc)
 
-	owner := wallet(key)
+	l1ChainId, _ := l1Client.ChainID(ctx)
+	l2ChainId, _ := l2Client.ChainID(ctx)
+
+	ownerl1 := wallet(key, l1ChainId)
+	ownerl2 := wallet(key, l2ChainId)
 	l1Bridge, _ := contracts.NewIL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
 	accounts, _ := contracts.NewAccounts(accountsAddress, l2Client)
 	l2Usdc, _ := contracts.NewTestERC20(l2UsdcAddress, l2Client)
@@ -163,7 +167,7 @@ func main() {
 						"to":      withdraw.To.Hex(),
 						"amount":  withdraw.Amount.String(),
 					}).Info("Withdrawal initiated.")
-					_, err := l1Bridge.FinalizeERC20Withdrawal(owner.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.To, withdraw.Amount, []byte{})
+					_, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.To, withdraw.Amount, []byte{})
 					if err != nil {
 						log.Error(err)
 					}
@@ -182,19 +186,19 @@ func main() {
 					}).Info("Deposit initiated.")
 
 					// Mint the amount
-					_, err := l2Usdc.Mint(owner.signer, owner.address, deposit.Amount)
+					_, err := l2Usdc.Mint(ownerl2.signer, ownerl2.address, deposit.Amount)
 					if err != nil {
 						log.Error(err)
 					}
 
 					// Approve the amount
-					_, err = l2Usdc.Approve(owner.signer, accountsAddress, deposit.Amount)
+					_, err = l2Usdc.Approve(ownerl2.signer, accountsAddress, deposit.Amount)
 					if err != nil {
 						log.Error(err)
 					}
 
 					// Deposit
-					_, err = accounts.Deposit(owner.signer, deposit.To, deposit.L2Token, deposit.Amount)
+					_, err = accounts.Deposit(ownerl2.signer, deposit.To, deposit.L2Token, deposit.Amount)
 					if err != nil {
 						log.Error(err)
 					}
@@ -219,7 +223,7 @@ func check(err error) {
 	}
 }
 
-func wallet(key string) Wallet {
+func wallet(key string, chainId *big.Int) Wallet {
 	privateKey, err := crypto.HexToECDSA(key)
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
