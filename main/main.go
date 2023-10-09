@@ -142,7 +142,7 @@ func main() {
 	ctx := context.Background()
 	key = os.Getenv("OWNER_KEY")
 	router := httprouter.New()
-	router.GET("/addresses", func(_ http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	router.POST("/addresses", func(_ http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		var deployments ContractAddresses
 
 		b, err := io.ReadAll(req.Body)
