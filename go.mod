@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.7.0
 	github.com/ethereum/go-ethereum v1.10.26
+	github.com/julienschmidt/httprouter v1.2.0
 	github.com/sirupsen/logrus v1.9.0
 )
 

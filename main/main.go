@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -21,15 +22,17 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 	"github.com/stevenwal/mock-indexer/contracts"
 )
 
 var (
-	cache                     = "addresses.json"
 	key                       = ""
 	l1Rpc                     = "ws://anvil-l1:8545"
 	l2Rpc                     = "ws://anvil-l2:8545"
+	set                       = false
+	host                      = ":1010"
 	accountsAddress           = common.Address{}
 	l1ERC20BridgeAddress      = common.Address{}
 	l2BridgeAddress           = common.Address{}
@@ -123,33 +126,10 @@ func StartSubscription(
 }
 
 func init() {
-	key = os.Getenv("OWNER_KEY")
 
-	file, err := os.Open(cache)
-
-	if err != nil {
-		log.Fatal("cache does not exist")
-	}
-
-	byteValue, _ := io.ReadAll(file)
-
-	var deployments ContractAddresses
-
-	err = json.Unmarshal(byteValue, &deployments)
-	if err != nil {
-		log.Fatal("fail to parse addresses")
-	}
-
-	accountsAddress = deployments.Account
-	l1ERC20BridgeAddress = deployments.L1StandardBridge
-	l2BridgeAddress = deployments.L2StandardBridge
-	l1UsdcAddress = deployments.USDC
-	l2UsdcAddress = deployments.L2USDC
 }
 
 func main() {
-	ctx := context.Background()
-
 	var (
 		delay int64
 	)
@@ -159,10 +139,74 @@ func main() {
 
 	log.Info(fmt.Sprintf("Delay set at %d seconds", delay))
 
-	sink := make(chan types.Log)
+	ctx := context.Background()
+	key = os.Getenv("OWNER_KEY")
+	router := httprouter.New()
+	router.GET("/addresses", func(_ http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+		var deployments ContractAddresses
+
+		b, err := io.ReadAll(req.Body)
+		if err != nil {
+			log.Error("fail to parse addresses")
+			return
+		}
+
+		err = json.Unmarshal(b, &deployments)
+		if err != nil {
+			log.Error("fail to parse addresses")
+			return
+		}
+
+		if deployments.Account.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+		if deployments.L1StandardBridge.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+		if deployments.L2StandardBridge.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+		if deployments.USDC.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+		if deployments.L2USDC.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+
+		accountsAddress = deployments.Account
+		l1ERC20BridgeAddress = deployments.L1StandardBridge
+		l2BridgeAddress = deployments.L2StandardBridge
+		l1UsdcAddress = deployments.USDC
+		l2UsdcAddress = deployments.L2USDC
+		set = true
+	})
+
+	server := &http.Server{
+		Addr:    host,
+		Handler: router,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			log.Error(err)
+		}
+	}()
+
+	for !set {
+		time.Sleep(2 * time.Second)
+		log.Info("Waiting for deployment address")
+	}
 
 	l1Client := CreateClient(ctx, l1Rpc)
 	l2Client := CreateClient(ctx, l2Rpc)
+
+	sink := make(chan types.Log, 1000)
+
 	conn := CreateDBConn(ctx)
 
 	l1ChainId, _ := l1Client.ChainID(ctx)
@@ -186,6 +230,30 @@ func main() {
 	l2Filter := ethereum.FilterQuery{
 		Addresses: []common.Address{accountsAddress},
 		Topics:    l2Topics,
+	}
+
+	events, err := l1Client.FilterLogs(ctx, ethereum.FilterQuery{
+		Addresses: []common.Address{l1ERC20BridgeAddress},
+		Topics:    [][]common.Hash{{ERC20DepositInitiated}},
+		FromBlock: new(big.Int).SetUint64(0),
+	})
+	for _, event := range events {
+		sink <- event
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	events, err = l2Client.FilterLogs(ctx, ethereum.FilterQuery{
+		Addresses: []common.Address{accountsAddress},
+		Topics:    [][]common.Hash{{Withdraw}},
+		FromBlock: new(big.Int).SetUint64(0),
+	})
+	for _, event := range events {
+		sink <- event
+	}
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	go StartSubscription(ctx, l1Client, l1Filter, sink)
@@ -270,6 +338,10 @@ func main() {
 				}
 			}
 		case <-ctx.Done():
+			// Shutdown server
+			if err := server.Shutdown(ctx); err != nil {
+				log.Fatal(err)
+			}
 			return
 		}
 	}
