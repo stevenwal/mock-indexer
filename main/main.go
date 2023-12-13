@@ -46,7 +46,7 @@ var (
 	SocketControllerInterface, _ = abi.JSON(strings.NewReader(contracts.MockL2SocketControllerABI))
 	DepositInitiated             = L1ERC20BridgeInterface.Events["MockDepositInitiated"].ID
 	WithdrawalInitiated          = L2ERC20BridgeInterface.Events["MockWithdrawalInitiated"].ID
-	MessageOutbound              = SocketVaultInterface.Events["MessageOutbound"].ID
+	SocketMessage                = SocketVaultInterface.Events["SocketMessage"].ID
 )
 
 // Timeout when connecting to the RPC
@@ -262,7 +262,7 @@ func main() {
 		Topics:    l2Topics,
 	}
 
-	arbTopics, _ := abi.MakeTopics([]interface{}{MessageOutbound})
+	arbTopics, _ := abi.MakeTopics([]interface{}{SocketMessage})
 	arbFilter := ethereum.FilterQuery{
 		Addresses: []common.Address{socketVaultAddress},
 		Topics:    arbTopics,
@@ -316,7 +316,7 @@ func main() {
 			switch event.Address {
 			case socketControllerAddress:
 				switch event.Topics[0] {
-				case MessageOutbound:
+				case SocketMessage:
 					// execute on l2
 					withdraw, _ := socketController.MockL2SocketControllerFilterer.ParseSocketMessage(event)
 					log.WithFields(log.Fields{
@@ -333,7 +333,7 @@ func main() {
 				}
 			case socketVaultAddress:
 				switch event.Topics[0] {
-				case MessageOutbound:
+				case SocketMessage:
 					// execute on l2
 					deposit, _ := socketVault.MockL1SocketVaultFilterer.ParseSocketMessage(event)
 					log.WithFields(log.Fields{
