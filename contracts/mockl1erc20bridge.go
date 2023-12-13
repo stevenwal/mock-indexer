@@ -26,12 +26,13 @@ var (
 	_ = common.Big1
 	_ = types.BloomLookup
 	_ = event.NewSubscription
+	_ = abi.ConvertType
 )
 
 // MockL1ERC20BridgeMetaData contains all meta data concerning the MockL1ERC20Bridge contract.
 var MockL1ERC20BridgeMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"ERC20DepositInitiated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"ERC20WithdrawalFinalized\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"depositERC20\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"depositERC20To\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"finalizeERC20Withdrawal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"l2Bridge\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"l2TokenBridge\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l2Bridge\",\"type\":\"address\"}],\"name\":\"setl2TokenBridge\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561001057600080fd5b506105e3806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c8063425993111461006757806358a997f614610099578063838b2520146100ac57806391c49bf8146100bf578063a9f9e675146100e8578063ae1f6aaf146100fb575b600080fd5b61009761007536600461038f565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b005b6100976100a736600461040e565b61010e565b6100976100ba36600461048d565b610186565b6000546001600160a01b03165b6040516001600160a01b03909116815260200160405180910390f35b6100976100f636600461051d565b6101ff565b6000546100cc906001600160a01b031681565b6101236001600160a01b038716333087610266565b336001600160a01b0316856001600160a01b0316876001600160a01b03167f718594027abd4eaed59f95162563e0cc6d0e8d5b86b1c7be8b1b0ac3343d039633888787604051610176949392919061058e565b60405180910390a4505050505050565b61019b6001600160a01b038816333087610266565b336001600160a01b0316866001600160a01b0316886001600160a01b03167f718594027abd4eaed59f95162563e0cc6d0e8d5b86b1c7be8b1b0ac3343d0396888887876040516101ee949392919061058e565b60405180910390a450505050505050565b6102136001600160a01b03881685856102f5565b846001600160a01b0316866001600160a01b0316886001600160a01b03167f3ceee06c1e37648fcbb6ed52e17b3e1f275a1f8c7b22a84b2b84732431e046b3878787876040516101ee949392919061058e565b60006040516323b872dd60e01b81528460048201528360248201528260448201526020600060648360008a5af13d15601f3d11600160005114161716915050806102ee5760405162461bcd60e51b81526020600482015260146024820152731514905394d1915497d19493d357d1905253115160621b60448201526064015b60405180910390fd5b5050505050565b600060405163a9059cbb60e01b8152836004820152826024820152602060006044836000895af13d15601f3d116001600051141617169150508061036d5760405162461bcd60e51b815260206004820152600f60248201526e1514905394d1915497d19052531151608a1b60448201526064016102e5565b50505050565b80356001600160a01b038116811461038a57600080fd5b919050565b6000602082840312156103a157600080fd5b6103aa82610373565b9392505050565b803563ffffffff8116811461038a57600080fd5b60008083601f8401126103d757600080fd5b50813567ffffffffffffffff8111156103ef57600080fd5b60208301915083602082850101111561040757600080fd5b9250929050565b60008060008060008060a0878903121561042757600080fd5b61043087610373565b955061043e60208801610373565b945060408701359350610453606088016103b1565b9250608087013567ffffffffffffffff81111561046f57600080fd5b61047b89828a016103c5565b979a9699509497509295939492505050565b600080600080600080600060c0888a0312156104a857600080fd5b6104b188610373565b96506104bf60208901610373565b95506104cd60408901610373565b9450606088013593506104e2608089016103b1565b925060a088013567ffffffffffffffff8111156104fe57600080fd5b61050a8a828b016103c5565b989b979a50959850939692959293505050565b600080600080600080600060c0888a03121561053857600080fd5b61054188610373565b965061054f60208901610373565b955061055d60408901610373565b945061056b60608901610373565b93506080880135925060a088013567ffffffffffffffff8111156104fe57600080fd5b6001600160a01b0385168152602081018490526060604082018190528101829052818360808301376000818301608090810191909152601f909201601f19160101939250505056fea164736f6c634300080f000a",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"ERC20DepositInitiated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"ERC20WithdrawalFinalized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_message\",\"type\":\"bytes\"}],\"name\":\"MockDepositInitiated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"messageNonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"gasLimit\",\"type\":\"uint256\"}],\"name\":\"SentMessage\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"withdrawalHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"name\":\"WithdrawalFinalized\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MESSAGE_VERSION\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"depositERC20\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"_gasLimit\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"depositERC20To\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l1Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_l2Token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"withdrawalHash\",\"type\":\"bytes32\"}],\"name\":\"finalizeERC20Withdrawal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"l2Bridge\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"l2TokenBridge\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"messageNonce\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_l2Bridge\",\"type\":\"address\"}],\"name\":\"setl2TokenBridge\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561001057600080fd5b506108d1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c8063838b25201161005b578063838b25201461010557806391c49bf814610118578063ae1f6aaf1461013d578063ecc704281461015057600080fd5b8063185f8f1a1461008d5780633f827a5a146100a257806342599311146100c257806358a997f6146100f2575b600080fd5b6100a061009b366004610572565b610166565b005b6100aa600181565b60405161ffff90911681526020015b60405180910390f35b6100a06100d0366004610609565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b6100a061010036600461063f565b610215565b6100a06101133660046106be565b61022d565b6001546001600160a01b03165b6040516001600160a01b0390911681526020016100b9565b600154610125906001600160a01b031681565b610158610245565b6040519081526020016100b9565b61017a6001600160a01b038916868661025a565b6040516001815281907fdb5c7652857aa163daadd670e116628fb42e869d8ac4251ef8971d9e5727df1b9060200160405180910390a2856001600160a01b0316876001600160a01b0316896001600160a01b03167f3ceee06c1e37648fcbb6ed52e17b3e1f275a1f8c7b22a84b2b84732431e046b3888888886040516102039493929190610777565b60405180910390a45050505050505050565b61022586863387600087876102dd565b505050505050565b61023c878787878787876102dd565b50505050505050565b6000546001600160f01b0316600160f01b1790565b600060405163a9059cbb60e01b8152836004820152826024820152602060006044836000895af13d15601f3d11600160005114161716915050806102d75760405162461bcd60e51b815260206004820152600f60248201526e1514905394d1915497d19052531151608a1b60448201526064015b60405180910390fd5b50505050565b6102f26001600160a01b038816333087610483565b600063ec15143160e01b8888338989888860405160240161031997969594939291906107a9565b60408051601f198184030181529190526020810180516001600160e01b03166001600160e01b0319909316929092179091526001549091506001600160a01b03167fcb0f7ffd78f9aee47a248fae8db181db6eee833039123e026dcbff529522e52a3083610385610245565b60006040516103979493929190610847565b60405180910390a2336001600160a01b0316876001600160a01b0316896001600160a01b03167f718594027abd4eaed59f95162563e0cc6d0e8d5b86b1c7be8b1b0ac3343d0396898988886040516103f29493929190610777565b60405180910390a4336001600160a01b0316876001600160a01b0316896001600160a01b03167fc680d2251933732f9d0874375cc86e779ff2bc0ffd83648a7f0d457b0523bc14898988888860405161044f95949392919061087e565b60405180910390a45050600080546001600160f01b03808216600101166001600160f01b0319909116179055505050505050565b60006040516323b872dd60e01b81528460048201528360248201528260448201526020600060648360008a5af13d15601f3d11600160005114161716915050806105065760405162461bcd60e51b81526020600482015260146024820152731514905394d1915497d19493d357d1905253115160621b60448201526064016102ce565b5050505050565b80356001600160a01b038116811461052457600080fd5b919050565b60008083601f84011261053b57600080fd5b50813567ffffffffffffffff81111561055357600080fd5b60208301915083602082850101111561056b57600080fd5b9250929050565b60008060008060008060008060e0898b03121561058e57600080fd5b6105978961050d565b97506105a560208a0161050d565b96506105b360408a0161050d565b95506105c160608a0161050d565b94506080890135935060a089013567ffffffffffffffff8111156105e457600080fd5b6105f08b828c01610529565b999c989b50969995989497949560c00135949350505050565b60006020828403121561061b57600080fd5b6106248261050d565b9392505050565b803563ffffffff8116811461052457600080fd5b60008060008060008060a0878903121561065857600080fd5b6106618761050d565b955061066f6020880161050d565b9450604087013593506106846060880161062b565b9250608087013567ffffffffffffffff8111156106a057600080fd5b6106ac89828a01610529565b979a9699509497509295939492505050565b600080600080600080600060c0888a0312156106d957600080fd5b6106e28861050d565b96506106f06020890161050d565b95506106fe6040890161050d565b9450606088013593506107136080890161062b565b925060a088013567ffffffffffffffff81111561072f57600080fd5b61073b8a828b01610529565b989b979a50959850939692959293505050565b81835281816020850137506000828201602090810191909152601f909101601f19169091010190565b60018060a01b038516815283602082015260606040820152600061079f60608301848661074e565b9695505050505050565b6001600160a01b03888116825287811660208301528681166040830152851660608201526080810184905260c060a082018190526000906107ed908301848661074e565b9998505050505050505050565b6000815180845260005b8181101561082057602081850181015186830182015201610804565b81811115610832576000602083870101525b50601f01601f19169290920160200192915050565b6001600160a01b038516815260806020820181905260009061086b908301866107fa565b6040830194909452506060015292915050565b60018060a01b03861681528460208201526080604082015260006108a660808301858761074e565b82810360608401526108b881856107fa565b9897505050505050505056fea164736f6c634300080f000a",
 }
 
 // MockL1ERC20BridgeABI is the input ABI used to generate the binding from.
@@ -156,11 +157,11 @@ func NewMockL1ERC20BridgeFilterer(address common.Address, filterer bind.Contract
 
 // bindMockL1ERC20Bridge binds a generic wrapper to an already deployed contract.
 func bindMockL1ERC20Bridge(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
-	parsed, err := abi.JSON(strings.NewReader(MockL1ERC20BridgeABI))
+	parsed, err := MockL1ERC20BridgeMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, *parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -199,6 +200,37 @@ func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorRaw) Transfer(opts *bind.Tr
 // Transact invokes the (paid) contract method with params as input values.
 func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _MockL1ERC20Bridge.Contract.contract.Transact(opts, method, params...)
+}
+
+// MESSAGEVERSION is a free data retrieval call binding the contract method 0x3f827a5a.
+//
+// Solidity: function MESSAGE_VERSION() view returns(uint16)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeCaller) MESSAGEVERSION(opts *bind.CallOpts) (uint16, error) {
+	var out []interface{}
+	err := _MockL1ERC20Bridge.contract.Call(opts, &out, "MESSAGE_VERSION")
+
+	if err != nil {
+		return *new(uint16), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint16)).(*uint16)
+
+	return out0, err
+
+}
+
+// MESSAGEVERSION is a free data retrieval call binding the contract method 0x3f827a5a.
+//
+// Solidity: function MESSAGE_VERSION() view returns(uint16)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) MESSAGEVERSION() (uint16, error) {
+	return _MockL1ERC20Bridge.Contract.MESSAGEVERSION(&_MockL1ERC20Bridge.CallOpts)
+}
+
+// MESSAGEVERSION is a free data retrieval call binding the contract method 0x3f827a5a.
+//
+// Solidity: function MESSAGE_VERSION() view returns(uint16)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeCallerSession) MESSAGEVERSION() (uint16, error) {
+	return _MockL1ERC20Bridge.Contract.MESSAGEVERSION(&_MockL1ERC20Bridge.CallOpts)
 }
 
 // L2Bridge is a free data retrieval call binding the contract method 0xae1f6aaf.
@@ -263,6 +295,37 @@ func (_MockL1ERC20Bridge *MockL1ERC20BridgeCallerSession) L2TokenBridge() (commo
 	return _MockL1ERC20Bridge.Contract.L2TokenBridge(&_MockL1ERC20Bridge.CallOpts)
 }
 
+// MessageNonce is a free data retrieval call binding the contract method 0xecc70428.
+//
+// Solidity: function messageNonce() view returns(uint256)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeCaller) MessageNonce(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _MockL1ERC20Bridge.contract.Call(opts, &out, "messageNonce")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// MessageNonce is a free data retrieval call binding the contract method 0xecc70428.
+//
+// Solidity: function messageNonce() view returns(uint256)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) MessageNonce() (*big.Int, error) {
+	return _MockL1ERC20Bridge.Contract.MessageNonce(&_MockL1ERC20Bridge.CallOpts)
+}
+
+// MessageNonce is a free data retrieval call binding the contract method 0xecc70428.
+//
+// Solidity: function messageNonce() view returns(uint256)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeCallerSession) MessageNonce() (*big.Int, error) {
+	return _MockL1ERC20Bridge.Contract.MessageNonce(&_MockL1ERC20Bridge.CallOpts)
+}
+
 // DepositERC20 is a paid mutator transaction binding the contract method 0x58a997f6.
 //
 // Solidity: function depositERC20(address _l1Token, address _l2Token, uint256 _amount, uint32 , bytes _data) returns()
@@ -286,44 +349,44 @@ func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorSession) DepositERC20(_l1To
 
 // DepositERC20To is a paid mutator transaction binding the contract method 0x838b2520.
 //
-// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 , bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactor) DepositERC20To(opts *bind.TransactOpts, _l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, arg4 uint32, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.contract.Transact(opts, "depositERC20To", _l1Token, _l2Token, _to, _amount, arg4, _data)
+// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 _gasLimit, bytes _data) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactor) DepositERC20To(opts *bind.TransactOpts, _l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, _gasLimit uint32, _data []byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.contract.Transact(opts, "depositERC20To", _l1Token, _l2Token, _to, _amount, _gasLimit, _data)
 }
 
 // DepositERC20To is a paid mutator transaction binding the contract method 0x838b2520.
 //
-// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 , bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) DepositERC20To(_l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, arg4 uint32, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.Contract.DepositERC20To(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _to, _amount, arg4, _data)
+// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 _gasLimit, bytes _data) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) DepositERC20To(_l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, _gasLimit uint32, _data []byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.Contract.DepositERC20To(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _to, _amount, _gasLimit, _data)
 }
 
 // DepositERC20To is a paid mutator transaction binding the contract method 0x838b2520.
 //
-// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 , bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorSession) DepositERC20To(_l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, arg4 uint32, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.Contract.DepositERC20To(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _to, _amount, arg4, _data)
+// Solidity: function depositERC20To(address _l1Token, address _l2Token, address _to, uint256 _amount, uint32 _gasLimit, bytes _data) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorSession) DepositERC20To(_l1Token common.Address, _l2Token common.Address, _to common.Address, _amount *big.Int, _gasLimit uint32, _data []byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.Contract.DepositERC20To(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _to, _amount, _gasLimit, _data)
 }
 
-// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0xa9f9e675.
+// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0x185f8f1a.
 //
-// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactor) FinalizeERC20Withdrawal(opts *bind.TransactOpts, _l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.contract.Transact(opts, "finalizeERC20Withdrawal", _l1Token, _l2Token, _from, _to, _amount, _data)
+// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data, bytes32 withdrawalHash) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactor) FinalizeERC20Withdrawal(opts *bind.TransactOpts, _l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte, withdrawalHash [32]byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.contract.Transact(opts, "finalizeERC20Withdrawal", _l1Token, _l2Token, _from, _to, _amount, _data, withdrawalHash)
 }
 
-// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0xa9f9e675.
+// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0x185f8f1a.
 //
-// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) FinalizeERC20Withdrawal(_l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.Contract.FinalizeERC20Withdrawal(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _from, _to, _amount, _data)
+// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data, bytes32 withdrawalHash) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeSession) FinalizeERC20Withdrawal(_l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte, withdrawalHash [32]byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.Contract.FinalizeERC20Withdrawal(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _from, _to, _amount, _data, withdrawalHash)
 }
 
-// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0xa9f9e675.
+// FinalizeERC20Withdrawal is a paid mutator transaction binding the contract method 0x185f8f1a.
 //
-// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data) returns()
-func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorSession) FinalizeERC20Withdrawal(_l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte) (*types.Transaction, error) {
-	return _MockL1ERC20Bridge.Contract.FinalizeERC20Withdrawal(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _from, _to, _amount, _data)
+// Solidity: function finalizeERC20Withdrawal(address _l1Token, address _l2Token, address _from, address _to, uint256 _amount, bytes _data, bytes32 withdrawalHash) returns()
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeTransactorSession) FinalizeERC20Withdrawal(_l1Token common.Address, _l2Token common.Address, _from common.Address, _to common.Address, _amount *big.Int, _data []byte, withdrawalHash [32]byte) (*types.Transaction, error) {
+	return _MockL1ERC20Bridge.Contract.FinalizeERC20Withdrawal(&_MockL1ERC20Bridge.TransactOpts, _l1Token, _l2Token, _from, _to, _amount, _data, withdrawalHash)
 }
 
 // Setl2TokenBridge is a paid mutator transaction binding the contract method 0x42599311.
@@ -671,6 +734,465 @@ func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) WatchERC20WithdrawalFinaliz
 func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) ParseERC20WithdrawalFinalized(log types.Log) (*MockL1ERC20BridgeERC20WithdrawalFinalized, error) {
 	event := new(MockL1ERC20BridgeERC20WithdrawalFinalized)
 	if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "ERC20WithdrawalFinalized", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MockL1ERC20BridgeMockDepositInitiatedIterator is returned from FilterMockDepositInitiated and is used to iterate over the raw logs and unpacked data for MockDepositInitiated events raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeMockDepositInitiatedIterator struct {
+	Event *MockL1ERC20BridgeMockDepositInitiated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MockL1ERC20BridgeMockDepositInitiatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MockL1ERC20BridgeMockDepositInitiated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MockL1ERC20BridgeMockDepositInitiated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MockL1ERC20BridgeMockDepositInitiatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MockL1ERC20BridgeMockDepositInitiatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MockL1ERC20BridgeMockDepositInitiated represents a MockDepositInitiated event raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeMockDepositInitiated struct {
+	L1Token common.Address
+	L2Token common.Address
+	From    common.Address
+	To      common.Address
+	Amount  *big.Int
+	Data    []byte
+	Message []byte
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterMockDepositInitiated is a free log retrieval operation binding the contract event 0xc680d2251933732f9d0874375cc86e779ff2bc0ffd83648a7f0d457b0523bc14.
+//
+// Solidity: event MockDepositInitiated(address indexed _l1Token, address indexed _l2Token, address indexed _from, address _to, uint256 _amount, bytes _data, bytes _message)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) FilterMockDepositInitiated(opts *bind.FilterOpts, _l1Token []common.Address, _l2Token []common.Address, _from []common.Address) (*MockL1ERC20BridgeMockDepositInitiatedIterator, error) {
+
+	var _l1TokenRule []interface{}
+	for _, _l1TokenItem := range _l1Token {
+		_l1TokenRule = append(_l1TokenRule, _l1TokenItem)
+	}
+	var _l2TokenRule []interface{}
+	for _, _l2TokenItem := range _l2Token {
+		_l2TokenRule = append(_l2TokenRule, _l2TokenItem)
+	}
+	var _fromRule []interface{}
+	for _, _fromItem := range _from {
+		_fromRule = append(_fromRule, _fromItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.FilterLogs(opts, "MockDepositInitiated", _l1TokenRule, _l2TokenRule, _fromRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MockL1ERC20BridgeMockDepositInitiatedIterator{contract: _MockL1ERC20Bridge.contract, event: "MockDepositInitiated", logs: logs, sub: sub}, nil
+}
+
+// WatchMockDepositInitiated is a free log subscription operation binding the contract event 0xc680d2251933732f9d0874375cc86e779ff2bc0ffd83648a7f0d457b0523bc14.
+//
+// Solidity: event MockDepositInitiated(address indexed _l1Token, address indexed _l2Token, address indexed _from, address _to, uint256 _amount, bytes _data, bytes _message)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) WatchMockDepositInitiated(opts *bind.WatchOpts, sink chan<- *MockL1ERC20BridgeMockDepositInitiated, _l1Token []common.Address, _l2Token []common.Address, _from []common.Address) (event.Subscription, error) {
+
+	var _l1TokenRule []interface{}
+	for _, _l1TokenItem := range _l1Token {
+		_l1TokenRule = append(_l1TokenRule, _l1TokenItem)
+	}
+	var _l2TokenRule []interface{}
+	for _, _l2TokenItem := range _l2Token {
+		_l2TokenRule = append(_l2TokenRule, _l2TokenItem)
+	}
+	var _fromRule []interface{}
+	for _, _fromItem := range _from {
+		_fromRule = append(_fromRule, _fromItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.WatchLogs(opts, "MockDepositInitiated", _l1TokenRule, _l2TokenRule, _fromRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MockL1ERC20BridgeMockDepositInitiated)
+				if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "MockDepositInitiated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseMockDepositInitiated is a log parse operation binding the contract event 0xc680d2251933732f9d0874375cc86e779ff2bc0ffd83648a7f0d457b0523bc14.
+//
+// Solidity: event MockDepositInitiated(address indexed _l1Token, address indexed _l2Token, address indexed _from, address _to, uint256 _amount, bytes _data, bytes _message)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) ParseMockDepositInitiated(log types.Log) (*MockL1ERC20BridgeMockDepositInitiated, error) {
+	event := new(MockL1ERC20BridgeMockDepositInitiated)
+	if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "MockDepositInitiated", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MockL1ERC20BridgeSentMessageIterator is returned from FilterSentMessage and is used to iterate over the raw logs and unpacked data for SentMessage events raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeSentMessageIterator struct {
+	Event *MockL1ERC20BridgeSentMessage // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MockL1ERC20BridgeSentMessageIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MockL1ERC20BridgeSentMessage)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MockL1ERC20BridgeSentMessage)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MockL1ERC20BridgeSentMessageIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MockL1ERC20BridgeSentMessageIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MockL1ERC20BridgeSentMessage represents a SentMessage event raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeSentMessage struct {
+	Target       common.Address
+	Sender       common.Address
+	Message      []byte
+	MessageNonce *big.Int
+	GasLimit     *big.Int
+	Raw          types.Log // Blockchain specific contextual infos
+}
+
+// FilterSentMessage is a free log retrieval operation binding the contract event 0xcb0f7ffd78f9aee47a248fae8db181db6eee833039123e026dcbff529522e52a.
+//
+// Solidity: event SentMessage(address indexed target, address sender, bytes message, uint256 messageNonce, uint256 gasLimit)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) FilterSentMessage(opts *bind.FilterOpts, target []common.Address) (*MockL1ERC20BridgeSentMessageIterator, error) {
+
+	var targetRule []interface{}
+	for _, targetItem := range target {
+		targetRule = append(targetRule, targetItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.FilterLogs(opts, "SentMessage", targetRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MockL1ERC20BridgeSentMessageIterator{contract: _MockL1ERC20Bridge.contract, event: "SentMessage", logs: logs, sub: sub}, nil
+}
+
+// WatchSentMessage is a free log subscription operation binding the contract event 0xcb0f7ffd78f9aee47a248fae8db181db6eee833039123e026dcbff529522e52a.
+//
+// Solidity: event SentMessage(address indexed target, address sender, bytes message, uint256 messageNonce, uint256 gasLimit)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) WatchSentMessage(opts *bind.WatchOpts, sink chan<- *MockL1ERC20BridgeSentMessage, target []common.Address) (event.Subscription, error) {
+
+	var targetRule []interface{}
+	for _, targetItem := range target {
+		targetRule = append(targetRule, targetItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.WatchLogs(opts, "SentMessage", targetRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MockL1ERC20BridgeSentMessage)
+				if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "SentMessage", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseSentMessage is a log parse operation binding the contract event 0xcb0f7ffd78f9aee47a248fae8db181db6eee833039123e026dcbff529522e52a.
+//
+// Solidity: event SentMessage(address indexed target, address sender, bytes message, uint256 messageNonce, uint256 gasLimit)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) ParseSentMessage(log types.Log) (*MockL1ERC20BridgeSentMessage, error) {
+	event := new(MockL1ERC20BridgeSentMessage)
+	if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "SentMessage", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MockL1ERC20BridgeWithdrawalFinalizedIterator is returned from FilterWithdrawalFinalized and is used to iterate over the raw logs and unpacked data for WithdrawalFinalized events raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeWithdrawalFinalizedIterator struct {
+	Event *MockL1ERC20BridgeWithdrawalFinalized // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MockL1ERC20BridgeWithdrawalFinalizedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MockL1ERC20BridgeWithdrawalFinalized)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MockL1ERC20BridgeWithdrawalFinalized)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MockL1ERC20BridgeWithdrawalFinalizedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MockL1ERC20BridgeWithdrawalFinalizedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MockL1ERC20BridgeWithdrawalFinalized represents a WithdrawalFinalized event raised by the MockL1ERC20Bridge contract.
+type MockL1ERC20BridgeWithdrawalFinalized struct {
+	WithdrawalHash [32]byte
+	Success        bool
+	Raw            types.Log // Blockchain specific contextual infos
+}
+
+// FilterWithdrawalFinalized is a free log retrieval operation binding the contract event 0xdb5c7652857aa163daadd670e116628fb42e869d8ac4251ef8971d9e5727df1b.
+//
+// Solidity: event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) FilterWithdrawalFinalized(opts *bind.FilterOpts, withdrawalHash [][32]byte) (*MockL1ERC20BridgeWithdrawalFinalizedIterator, error) {
+
+	var withdrawalHashRule []interface{}
+	for _, withdrawalHashItem := range withdrawalHash {
+		withdrawalHashRule = append(withdrawalHashRule, withdrawalHashItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.FilterLogs(opts, "WithdrawalFinalized", withdrawalHashRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MockL1ERC20BridgeWithdrawalFinalizedIterator{contract: _MockL1ERC20Bridge.contract, event: "WithdrawalFinalized", logs: logs, sub: sub}, nil
+}
+
+// WatchWithdrawalFinalized is a free log subscription operation binding the contract event 0xdb5c7652857aa163daadd670e116628fb42e869d8ac4251ef8971d9e5727df1b.
+//
+// Solidity: event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) WatchWithdrawalFinalized(opts *bind.WatchOpts, sink chan<- *MockL1ERC20BridgeWithdrawalFinalized, withdrawalHash [][32]byte) (event.Subscription, error) {
+
+	var withdrawalHashRule []interface{}
+	for _, withdrawalHashItem := range withdrawalHash {
+		withdrawalHashRule = append(withdrawalHashRule, withdrawalHashItem)
+	}
+
+	logs, sub, err := _MockL1ERC20Bridge.contract.WatchLogs(opts, "WithdrawalFinalized", withdrawalHashRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MockL1ERC20BridgeWithdrawalFinalized)
+				if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "WithdrawalFinalized", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseWithdrawalFinalized is a log parse operation binding the contract event 0xdb5c7652857aa163daadd670e116628fb42e869d8ac4251ef8971d9e5727df1b.
+//
+// Solidity: event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success)
+func (_MockL1ERC20Bridge *MockL1ERC20BridgeFilterer) ParseWithdrawalFinalized(log types.Log) (*MockL1ERC20BridgeWithdrawalFinalized, error) {
+	event := new(MockL1ERC20BridgeWithdrawalFinalized)
+	if err := _MockL1ERC20Bridge.contract.UnpackLog(event, "WithdrawalFinalized", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

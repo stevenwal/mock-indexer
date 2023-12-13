@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -33,17 +35,12 @@ var (
 	l2Rpc                     = "ws://anvil-l2:8545"
 	set                       = false
 	host                      = ":1010"
-	accountsAddress           = common.Address{}
 	l1ERC20BridgeAddress      = common.Address{}
 	l2BridgeAddress           = common.Address{}
-	l1UsdcAddress             = common.Address{}
-	l2UsdcAddress             = common.Address{}
-	AccountsInterface, _      = abi.JSON(strings.NewReader(contracts.AccountsABI))
-	L1ERC20BridgeInterface, _ = abi.JSON(strings.NewReader(contracts.IL1ERC20BridgeABI))
-	ERC20DepositInitiated     = L1ERC20BridgeInterface.Events["ERC20DepositInitiated"].ID
-	ERC20WithdrawalFinalized  = L1ERC20BridgeInterface.Events["ERC20WithdrawalFinalized"].ID
-	Deposit                   = AccountsInterface.Events["Deposit"].ID
-	Withdraw                  = AccountsInterface.Events["Withdraw"].ID
+	L1ERC20BridgeInterface, _ = abi.JSON(strings.NewReader(contracts.MockL1ERC20BridgeABI))
+	L2ERC20BridgeInterface, _ = abi.JSON(strings.NewReader(contracts.MockL2ERC20BridgeABI))
+	DepositInitiated          = L1ERC20BridgeInterface.Events["MockDepositInitiated"].ID
+	WithdrawalInitiated       = L2ERC20BridgeInterface.Events["MockWithdrawalInitiated"].ID
 )
 
 // Timeout when connecting to the RPC
@@ -125,8 +122,30 @@ func StartSubscription(
 	}
 }
 
-func init() {
+func cacheLocation() string {
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	return filepath.Join(basepath, "addresses.json")
+}
 
+func readCache() {
+	jsonFile, err := os.Open(cacheLocation())
+
+	if err != nil {
+		log.Error("cache does not exist")
+	}
+
+	byteValue, _ := io.ReadAll(jsonFile)
+
+	var deployments ContractAddresses
+
+	err = json.Unmarshal(byteValue, &deployments)
+	if err != nil {
+		log.Error("fail to parse addresses")
+	}
+
+	l1ERC20BridgeAddress = deployments.L1StandardBridge
+	l2BridgeAddress = deployments.L2StandardBridge
 }
 
 func main() {
@@ -138,6 +157,13 @@ func main() {
 	flag.Parse()
 
 	log.Info(fmt.Sprintf("Delay set at %d seconds", delay))
+
+	cache := cacheLocation()
+	_, err := os.Open(cache)
+	if err == nil {
+		readCache()
+		set = true
+	}
 
 	ctx := context.Background()
 	key = os.Getenv("OWNER_KEY")
@@ -157,10 +183,6 @@ func main() {
 			return
 		}
 
-		if deployments.Account.Hex() == (common.Address{}).Hex() {
-			log.Error("empty account")
-			return
-		}
 		if deployments.L1StandardBridge.Hex() == (common.Address{}).Hex() {
 			log.Error("empty account")
 			return
@@ -169,20 +191,16 @@ func main() {
 			log.Error("empty account")
 			return
 		}
-		if deployments.USDC.Hex() == (common.Address{}).Hex() {
-			log.Error("empty account")
-			return
-		}
-		if deployments.L2USDC.Hex() == (common.Address{}).Hex() {
-			log.Error("empty account")
-			return
-		}
 
-		accountsAddress = deployments.Account
 		l1ERC20BridgeAddress = deployments.L1StandardBridge
 		l2BridgeAddress = deployments.L2StandardBridge
-		l1UsdcAddress = deployments.USDC
-		l2UsdcAddress = deployments.L2USDC
+
+		file, _ := json.MarshalIndent(deployments, "", "  ")
+		err = os.WriteFile(cacheLocation(), file, 0644)
+		if err != nil {
+			panic(err)
+		}
+
 		set = true
 	})
 
@@ -214,27 +232,24 @@ func main() {
 
 	ownerl1 := wallet(key, l1ChainId)
 	ownerl2 := wallet(key, l2ChainId)
-	l1Bridge, _ := contracts.NewIL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
+	l1Bridge, _ := contracts.NewMockL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
 	l2Bridge, _ := contracts.NewMockL2ERC20Bridge(l2BridgeAddress, l2Client)
 
-	accounts, _ := contracts.NewAccounts(accountsAddress, l2Client)
-	l2Usdc, _ := contracts.NewTestERC20(l2UsdcAddress, l2Client)
-
-	l1Topics, _ := abi.MakeTopics([]interface{}{ERC20DepositInitiated, ERC20WithdrawalFinalized})
+	l1Topics, _ := abi.MakeTopics([]interface{}{DepositInitiated})
 	l1Filter := ethereum.FilterQuery{
 		Addresses: []common.Address{l1ERC20BridgeAddress},
 		Topics:    l1Topics,
 	}
 
-	l2Topics, _ := abi.MakeTopics([]interface{}{Deposit, Withdraw})
+	l2Topics, _ := abi.MakeTopics([]interface{}{WithdrawalInitiated})
 	l2Filter := ethereum.FilterQuery{
-		Addresses: []common.Address{accountsAddress},
+		Addresses: []common.Address{l2BridgeAddress},
 		Topics:    l2Topics,
 	}
 
 	events, err := l1Client.FilterLogs(ctx, ethereum.FilterQuery{
 		Addresses: []common.Address{l1ERC20BridgeAddress},
-		Topics:    [][]common.Hash{{ERC20DepositInitiated}},
+		Topics:    l1Topics,
 		FromBlock: new(big.Int).SetUint64(0),
 	})
 	for _, event := range events {
@@ -245,8 +260,8 @@ func main() {
 	}
 
 	events, err = l2Client.FilterLogs(ctx, ethereum.FilterQuery{
-		Addresses: []common.Address{accountsAddress},
-		Topics:    [][]common.Hash{{Withdraw}},
+		Addresses: []common.Address{l2BridgeAddress},
+		Topics:    l2Topics,
 		FromBlock: new(big.Int).SetUint64(0),
 	})
 	for _, event := range events {
@@ -265,20 +280,29 @@ func main() {
 		select {
 		case event := <-sink:
 			switch event.Address {
-			case accountsAddress:
+			case l2BridgeAddress:
 				switch event.Topics[0] {
-				case Withdraw:
+				case WithdrawalInitiated:
 					// execute on l1
-					withdraw, _ := accounts.AccountsFilterer.ParseWithdraw(event)
+					withdraw, _ := l2Bridge.MockL2ERC20BridgeFilterer.ParseMockWithdrawalInitiated(event)
 					log.WithFields(log.Fields{
-						"account": withdraw.Account.Hex(),
+						"account": withdraw.From.Hex(),
 						"to":      withdraw.To.Hex(),
 						"amount":  withdraw.Amount.String(),
 					}).Info("Withdrawal initiated.")
 
 					time.Sleep(time.Duration(delay) * time.Second)
 
-					tx, err := l1Bridge.FinalizeERC20Withdrawal(ownerl1.signer, l1UsdcAddress, withdraw.Collateral, withdraw.Account, withdraw.Account, withdraw.Amount, []byte{})
+					tx, err := l1Bridge.FinalizeERC20Withdrawal(
+						ownerl1.signer,
+						withdraw.L1Token,
+						withdraw.L2Token,
+						withdraw.From,
+						withdraw.To,
+						withdraw.Amount,
+						withdraw.Data,
+						withdraw.WithdrawHash,
+					)
 					if err != nil {
 						log.Error(err)
 					}
@@ -298,9 +322,9 @@ func main() {
 				}
 			case l1ERC20BridgeAddress:
 				switch event.Topics[0] {
-				case ERC20DepositInitiated:
+				case DepositInitiated:
 					// execute on l2
-					deposit, _ := l1Bridge.IL1ERC20BridgeFilterer.ParseERC20DepositInitiated(event)
+					deposit, _ := l1Bridge.MockL1ERC20BridgeFilterer.ParseMockDepositInitiated(event)
 					log.WithFields(log.Fields{
 						"account": deposit.From.Hex(),
 						"to":      deposit.To.Hex(),
@@ -311,27 +335,11 @@ func main() {
 					time.Sleep(time.Duration(delay) * time.Second)
 
 					// Finalize deposit
-					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data)
+					msg := [32]byte{}
+					copy(msg[:], deposit.Message)
+					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data, msg)
 					if err != nil {
 						log.WithField("err", err).Error("finalize failed")
-					}
-
-					// Mint the amount
-					_, err = l2Usdc.Mint(ownerl2.signer, ownerl2.address, deposit.Amount)
-					if err != nil {
-						log.WithField("err", err).Error("mint failed")
-					}
-
-					// Approve the amount
-					_, err = l2Usdc.Approve(ownerl2.signer, accountsAddress, deposit.Amount)
-					if err != nil {
-						log.WithField("err", err).Error("approve failed")
-					}
-
-					// Deposit
-					_, err = accounts.Deposit(ownerl2.signer, deposit.To, deposit.L2Token, deposit.Amount)
-					if err != nil {
-						log.WithField("err", err).Error("deposit failed")
 					}
 				default:
 					continue
@@ -379,17 +387,6 @@ func wallet(key string, chainId *big.Int) Wallet {
 }
 
 type ContractAddresses struct {
-	Account          common.Address `json:"account"`
-	USDC             common.Address `json:"usdc"`
-	L1DepositHelper  common.Address `json:"l1DepositHelper"`
 	L1StandardBridge common.Address `json:"l1StandardBridge"`
 	L2StandardBridge common.Address `json:"l2StandardBridge"`
-	L2WithdrawProxy  common.Address `json:"l2WithdrawProxy"`
-	L2USDC           common.Address `json:"l2usdc"`
-
-	Instruments common.Address `json:"instruments"`
-	Exchange    common.Address `json:"exchange"`
-	Executor    common.Address `json:"executor"`
-	L2WETH      common.Address `json:"l2weth"`
-	L2WBTC      common.Address `json:"l2wbtc"`
 }
