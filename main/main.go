@@ -30,17 +30,23 @@ import (
 )
 
 var (
-	key                       = ""
-	l1Rpc                     = "ws://anvil-l1:8545"
-	l2Rpc                     = "ws://anvil-l2:8545"
-	set                       = false
-	host                      = ":1010"
-	l1ERC20BridgeAddress      = common.Address{}
-	l2BridgeAddress           = common.Address{}
-	L1ERC20BridgeInterface, _ = abi.JSON(strings.NewReader(contracts.MockL1ERC20BridgeABI))
-	L2ERC20BridgeInterface, _ = abi.JSON(strings.NewReader(contracts.MockL2ERC20BridgeABI))
-	DepositInitiated          = L1ERC20BridgeInterface.Events["MockDepositInitiated"].ID
-	WithdrawalInitiated       = L2ERC20BridgeInterface.Events["MockWithdrawalInitiated"].ID
+	key                          = ""
+	l1Rpc                        = "ws://anvil-l1:8545"
+	l2Rpc                        = "ws://anvil-l2:8545"
+	arbRpc                       = "ws://anvil-arb:8555"
+	set                          = false
+	host                         = ":1010"
+	l1ERC20BridgeAddress         = common.Address{}
+	l2BridgeAddress              = common.Address{}
+	socketControllerAddress      = common.Address{}
+	socketVaultAddress           = common.Address{}
+	L1ERC20BridgeInterface, _    = abi.JSON(strings.NewReader(contracts.MockL1ERC20BridgeABI))
+	L2ERC20BridgeInterface, _    = abi.JSON(strings.NewReader(contracts.MockL2ERC20BridgeABI))
+	SocketVaultInterface, _      = abi.JSON(strings.NewReader(contracts.MockL1SocketVaultABI))
+	SocketControllerInterface, _ = abi.JSON(strings.NewReader(contracts.MockL2SocketControllerABI))
+	DepositInitiated             = L1ERC20BridgeInterface.Events["MockDepositInitiated"].ID
+	WithdrawalInitiated          = L2ERC20BridgeInterface.Events["MockWithdrawalInitiated"].ID
+	MessageOutbound              = SocketVaultInterface.Events["MessageOutbound"].ID
 )
 
 // Timeout when connecting to the RPC
@@ -146,6 +152,8 @@ func readCache() {
 
 	l1ERC20BridgeAddress = deployments.L1StandardBridge
 	l2BridgeAddress = deployments.L2StandardBridge
+	socketVaultAddress = deployments.ArbitrumUSDCVault
+	socketControllerAddress = deployments.SocketController
 }
 
 func main() {
@@ -194,6 +202,8 @@ func main() {
 
 		l1ERC20BridgeAddress = deployments.L1StandardBridge
 		l2BridgeAddress = deployments.L2StandardBridge
+		socketVaultAddress = deployments.ArbitrumUSDCVault
+		socketControllerAddress = deployments.SocketController
 
 		file, _ := json.MarshalIndent(deployments, "", "  ")
 		err = os.WriteFile(cacheLocation(), file, 0644)
@@ -222,6 +232,7 @@ func main() {
 
 	l1Client := CreateClient(ctx, l1Rpc)
 	l2Client := CreateClient(ctx, l2Rpc)
+	arbClient := CreateClient(ctx, arbRpc)
 
 	sink := make(chan types.Log, 1000)
 
@@ -229,11 +240,15 @@ func main() {
 
 	l1ChainId, _ := l1Client.ChainID(ctx)
 	l2ChainId, _ := l2Client.ChainID(ctx)
+	arbChainId, _ := arbClient.ChainID(ctx)
 
 	ownerl1 := wallet(key, l1ChainId)
 	ownerl2 := wallet(key, l2ChainId)
+	ownerArb := wallet(key, arbChainId)
 	l1Bridge, _ := contracts.NewMockL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
 	l2Bridge, _ := contracts.NewMockL2ERC20Bridge(l2BridgeAddress, l2Client)
+	socketController, _ := contracts.NewMockL2SocketController(socketControllerAddress, arbClient)
+	socketVault, _ := contracts.NewMockL1SocketVault(socketVaultAddress, arbClient)
 
 	l1Topics, _ := abi.MakeTopics([]interface{}{DepositInitiated})
 	l1Filter := ethereum.FilterQuery{
@@ -243,8 +258,14 @@ func main() {
 
 	l2Topics, _ := abi.MakeTopics([]interface{}{WithdrawalInitiated})
 	l2Filter := ethereum.FilterQuery{
-		Addresses: []common.Address{l2BridgeAddress},
+		Addresses: []common.Address{l2BridgeAddress, socketControllerAddress},
 		Topics:    l2Topics,
+	}
+
+	arbTopics, _ := abi.MakeTopics([]interface{}{MessageOutbound})
+	arbFilter := ethereum.FilterQuery{
+		Addresses: []common.Address{socketVaultAddress},
+		Topics:    arbTopics,
 	}
 
 	events, err := l1Client.FilterLogs(ctx, ethereum.FilterQuery{
@@ -271,8 +292,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	events, err = arbClient.FilterLogs(ctx, ethereum.FilterQuery{
+		Addresses: []common.Address{socketVaultAddress},
+		Topics:    arbTopics,
+		FromBlock: new(big.Int).SetUint64(0),
+	})
+	for _, event := range events {
+		sink <- event
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	go StartSubscription(ctx, l1Client, l1Filter, sink)
 	go StartSubscription(ctx, l2Client, l2Filter, sink)
+	go StartSubscription(ctx, arbClient, arbFilter, sink)
 
 	log.Info("Indexing...")
 
@@ -280,6 +314,40 @@ func main() {
 		select {
 		case event := <-sink:
 			switch event.Address {
+			case socketControllerAddress:
+				switch event.Topics[0] {
+				case MessageOutbound:
+					// execute on l2
+					withdraw, _ := socketController.MockL2SocketControllerFilterer.ParseSocketMessage(event)
+					log.WithFields(log.Fields{
+						"msg": withdraw.MsgId,
+					}).Info("Withdraw initiated.")
+
+					time.Sleep(time.Duration(delay) * time.Second)
+
+					// Finalize deposit
+					_, err := socketVault.FinalizeERC20Withdrawal(ownerArb.signer, withdraw.To, withdraw.Amount, withdraw.MsgId)
+					if err != nil {
+						log.WithField("err", err).Error("finalize failed")
+					}
+				}
+			case socketVaultAddress:
+				switch event.Topics[0] {
+				case MessageOutbound:
+					// execute on l2
+					deposit, _ := socketVault.MockL1SocketVaultFilterer.ParseSocketMessage(event)
+					log.WithFields(log.Fields{
+						"msg": deposit.MsgId,
+					}).Info("Deposit initiated.")
+
+					time.Sleep(time.Duration(delay) * time.Second)
+
+					// Finalize deposit
+					_, err := socketController.FinalizeDeposit(ownerl2.signer, deposit.To, deposit.Amount, deposit.MsgId)
+					if err != nil {
+						log.WithField("err", err).Error("deposit failed")
+					}
+				}
 			case l2BridgeAddress:
 				switch event.Topics[0] {
 				case WithdrawalInitiated:
@@ -307,10 +375,11 @@ func main() {
 						log.Error(err)
 					}
 					err = conn.Exec(ctx,
-						"INSERT INTO processed_withdraw_history VALUES ($1, $2, $3, $4)",
+						"INSERT INTO processed_withdraw_history VALUES ($1, $2, $3, $4, $5)",
 						event.TxHash.Hex(),
 						tx.Hash().Hex(),
 						int64(event.BlockNumber),
+						l1ChainId,
 						time.Now().Unix(),
 					)
 					if err != nil {
@@ -385,6 +454,8 @@ func wallet(key string, chainId *big.Int) Wallet {
 }
 
 type ContractAddresses struct {
-	L1StandardBridge common.Address `json:"l1StandardBridge"`
-	L2StandardBridge common.Address `json:"l2StandardBridge"`
+	L1StandardBridge  common.Address `json:"l1StandardBridge"`
+	L2StandardBridge  common.Address `json:"l2StandardBridge"`
+	SocketController  common.Address `json:"socketController"`
+	ArbitrumUSDCVault common.Address `json:"arbitrumUSDCVault"`
 }
