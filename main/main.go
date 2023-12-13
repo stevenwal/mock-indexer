@@ -335,9 +335,7 @@ func main() {
 					time.Sleep(time.Duration(delay) * time.Second)
 
 					// Finalize deposit
-					msg := [32]byte{}
-					copy(msg[:], deposit.Message)
-					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data, msg)
+					_, err := l2Bridge.FinalizeDeposit(ownerl2.signer, deposit.L1Token, deposit.L2Token, deposit.From, deposit.To, deposit.Amount, deposit.Data, deposit.Message)
 					if err != nil {
 						log.WithField("err", err).Error("finalize failed")
 					}
