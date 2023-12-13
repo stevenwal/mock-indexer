@@ -247,7 +247,7 @@ func main() {
 	ownerArb := wallet(key, arbChainId)
 	l1Bridge, _ := contracts.NewMockL1ERC20Bridge(l1ERC20BridgeAddress, l1Client)
 	l2Bridge, _ := contracts.NewMockL2ERC20Bridge(l2BridgeAddress, l2Client)
-	socketController, _ := contracts.NewMockL2SocketController(socketControllerAddress, arbClient)
+	socketController, _ := contracts.NewMockL2SocketController(socketControllerAddress, l2Client)
 	socketVault, _ := contracts.NewMockL1SocketVault(socketVaultAddress, arbClient)
 
 	l1Topics, _ := abi.MakeTopics([]interface{}{DepositInitiated})
