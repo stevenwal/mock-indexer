@@ -31,9 +31,9 @@ import (
 
 var (
 	key                          = ""
-	l1Rpc                        = "ws://anvil-l1:8545"
-	l2Rpc                        = "ws://anvil-l2:8545"
-	arbRpc                       = "ws://anvil-arb:8555"
+	l1Rpc                        = "ws://127.0.0.1:8545"
+	l2Rpc                        = "ws://127.0.0.1:8545"
+	arbRpc                       = "ws://127.0.0.1:8555"
 	set                          = false
 	host                         = ":1010"
 	l1ERC20BridgeAddress         = common.Address{}
