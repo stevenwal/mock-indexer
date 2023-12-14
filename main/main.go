@@ -343,7 +343,7 @@ func main() {
 					time.Sleep(time.Duration(delay) * time.Second)
 
 					// Finalize deposit
-					_, err := socketController.FinalizeDeposit(ownerl2.signer, deposit.To, deposit.Amount, deposit.MsgId)
+					_, err := socketController.FinalizeDeposit(ownerl2.signer, deposit.To, deposit.Amount, deposit.MsgId, socketVaultAddress)
 					if err != nil {
 						log.WithField("err", err).Error("deposit failed")
 					}
