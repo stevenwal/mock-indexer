@@ -199,11 +199,26 @@ func main() {
 			log.Error("empty account")
 			return
 		}
+		if deployments.ArbitrumUSDCVault.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
+		if deployments.SocketController.Hex() == (common.Address{}).Hex() {
+			log.Error("empty account")
+			return
+		}
 
 		l1ERC20BridgeAddress = deployments.L1StandardBridge
 		l2BridgeAddress = deployments.L2StandardBridge
 		socketVaultAddress = deployments.ArbitrumUSDCVault
 		socketControllerAddress = deployments.SocketController
+
+		log.WithFields(log.Fields{
+			"l1ERC20BridgeAddress":    l1ERC20BridgeAddress,
+			"l2BridgeAddress":         l2BridgeAddress,
+			"socketVaultAddress":      socketVaultAddress,
+			"socketControllerAddress": socketControllerAddress,
+		}).Info("Deployment received.")
 
 		file, _ := json.MarshalIndent(deployments, "", "  ")
 		err = os.WriteFile(cacheLocation(), file, 0644)
@@ -256,7 +271,7 @@ func main() {
 		Topics:    l1Topics,
 	}
 
-	l2Topics, _ := abi.MakeTopics([]interface{}{WithdrawalInitiated})
+	l2Topics, _ := abi.MakeTopics([]interface{}{WithdrawalInitiated, SocketMessage})
 	l2Filter := ethereum.FilterQuery{
 		Addresses: []common.Address{l2BridgeAddress, socketControllerAddress},
 		Topics:    l2Topics,
